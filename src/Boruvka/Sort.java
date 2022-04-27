@@ -2,7 +2,7 @@ package Boruvka;
 
 public class Sort {
     //Preform counting sort per index defined in sortKeys. First index in sortKeys is the "highest priority" of the sorting.
-    public static Digraph radixSort(int[][] data, int[] sortKeys,int maxID, int size){
+    public static Graph radixSort(int[][] data, int[] sortKeys,int maxID, int size){
         for (int key: sortKeys) {
             data = countingSortReversed(data,key,maxID,size);
         }
@@ -26,8 +26,8 @@ public class Sort {
     }
 
     // Build a graph from the sortedData set given, here edges should be considered directed, even though they are undirect, but the set contains both {i,j} and {j,i}.
-    public static Digraph buildGraph(int[][] sortedData, int maxID){
-        Digraph g = new Digraph(maxID); // Create a graph with vertices matching the maxID stored in data. See DFS.
+    public static Graph buildGraph(int[][] sortedData, int maxID){
+        Graph g = new Graph(maxID); // Create a graph with vertices matching the maxID stored in data. See DFS.
         if(sortedData.length == 0) { // Whole graph has been contracted to a single vertex.
             return g;
         }
@@ -37,7 +37,7 @@ public class Sort {
         for (int i = 1; i < sortedData.length; i++) {
             if(sortedData[i][0] == prevRow[0]){
                 if (sortedData[i][1] == prevRow[1]){ // Source and target is the same as previous row, save the cheapest of the current row and the previous.
-                    if (Digraph.edgeCost[sortedData[i][2]] < Digraph.edgeCost[prevRow[2]]) prevRow = sortedData[i];
+                    if (Graph.edgeCost[sortedData[i][2]] < Graph.edgeCost[prevRow[2]]) prevRow = sortedData[i];
                 } else { // Source is the same but target changed, therefore the prevRow is the cheapest edge from source to target, and should be added to the graph.
                     edgesForVertex.add(prevRow[1]);
                     edgesForVertex.add(prevRow[2]);
