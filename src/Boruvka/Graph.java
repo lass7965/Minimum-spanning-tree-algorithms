@@ -17,8 +17,8 @@ public class Graph {
             this.vertices[i] = v;
         }
         edgeCost = cost;
-        for (int i = 0; i < input.length; i+=2) {
-            this.addEdge(input[i],input[i+1],i/2); // Add edge between {x,y} given the ID i/2, as an edge in the input reserves two positions.
+        for (int i = 0; i < input.length; i+=3) {
+            this.addEdge(input[i],input[i+1],input[i+2]); // Add edge between {x,y} given the ID i/2, as an edge in the input reserves two positions.
         }
     }
 
@@ -26,7 +26,7 @@ public class Graph {
     // Input of form {i,j,x,y} where vertices i,j are connected and x,y are connected.
     public static HashMap<Integer,Integer> parseInput(int[] input){
         HashMap<Integer,Integer> countMap = new HashMap<>();
-        for (int i = 0; i < input.length; i+=2) {
+        for (int i = 0; i < input.length; i+=3) {
             int x = input[i];
             int y = input[i+1];
             if(x < y){

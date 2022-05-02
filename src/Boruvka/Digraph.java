@@ -17,10 +17,10 @@ public class Digraph {
             this.vertices[i] = v;
         }
         edgeCost = cost;
-        for (int i = 0; i < input.length; i+=2) {
-            this.addEdge(input[i],input[i+1],i/2); // Add edge between {x,y} given the ID i/2, as an edge in the input reserves two positions.
+        for (int i = 0; i < input.length; i+=3) {
+            this.addEdge(input[i],input[i+1],input[i+2]); // Add edge between {x,y} given the ID i/2, as an edge in the input reserves two positions.
         }
-        this.edgesCount = input.length/2;
+        this.edgesCount = input.length/3;
     }
 
     public Digraph(int size){
@@ -32,9 +32,11 @@ public class Digraph {
     // Input of form {i,j,x,y} where vertices i,j are connected and x,y are connected.
     public static HashMap<Integer,Integer> parseInput(int[] input){
         HashMap<Integer,Integer> countMap = new HashMap<>();
-        for (int v:input) {
-            int counter = countMap.getOrDefault(v,0);
-            countMap.put(v,counter+1);
+        for (int i = 0; i < input.length; i+=3) {
+            int counter = countMap.getOrDefault(input[i],0);
+            countMap.put(input[i],counter+1);
+            counter = countMap.getOrDefault(input[i+1],0);
+            countMap.put(input[i+1],counter+1);
         }
         return countMap;
     }
