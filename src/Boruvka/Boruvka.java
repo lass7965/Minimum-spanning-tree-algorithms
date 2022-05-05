@@ -46,11 +46,12 @@ public class Boruvka {
             g = contract(g,translateTable);
         }
         /**                         End timer                          **/
-        profilerMain.labels.add("Boruvka - Contract v2");
+        profilerMain.labels.add("Boruvka");
         profilerMain.profiling.add(System.nanoTime());
         /**                         End timer                          **/
         return getMST(orgEdges,weights,orgN,MST);
     }
+
 
     public static int[] findCheapest(Digraph g, ArrayList MST){
         HashMap<Integer, Boolean> marked = new HashMap();
@@ -84,8 +85,7 @@ public class Boruvka {
         return MarkedEdges.getArray();
     }
 
-
-    /* v2
+    /*
     public static int[] findCheapest(Graph g, ArrayList MST){
         // A list containing two values per vertex which shows the cheapest edge candidates for a vertex.
         // These values are initially the ID of the edge that connects to this vertex along with the other endpoint of this edge.
@@ -128,6 +128,8 @@ public class Boruvka {
         return edgeCost < Graph.edgeCost[candidateList[target * 2]-1];
     }
 
+
+
     public static Digraph contract(Digraph g,int[] translateTable){
         int[] pileOfEdges = new int[g.edgesCount*3]; //{i,j,org.ID}
         int nextWrite = 0;
@@ -156,8 +158,8 @@ public class Boruvka {
         return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
     }
 
-    /* v3
-    public static Graph contract(Graph g, int[] translateTable){
+
+    /*public static Graph contract(Graph g, int[] translateTable){
         int[] pileOfEdges = new int[g.edgesCount*3]; //{i,j,org.ID} Size of this array is what slows things down.
         int nextWrite = 0;
         int[] sortKeys = {1,0};
@@ -181,7 +183,7 @@ public class Boruvka {
             }
         }
         return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
-    } */
+    }*/
 
     public static int[] getMST(int[] edges,float[] weights, int n, ArrayList MST){
         int[] mstEdges = new int[(n-1)*3];
