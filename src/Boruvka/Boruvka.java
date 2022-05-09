@@ -88,20 +88,31 @@ public class Boruvka {
 
 
     public static Digraph contract(Digraph g,int[] translateTable){
-        int[][] edges = new int[g.edgesCount*2][3]; //{i,j,org.ID}
+        int[] pileOfEdges = new int[g.edgesCount*6]; //{i,j,org.ID}
         int nextWrite = 0;
         int[] sortKeys = {1,0};
+        boolean[] edgeDone = new boolean[Digraph.edgeCost.length]; // Mapping the edgeID to a boolean to avoid adding the same edge twice.
         for(int i = 0; i < g.vertices.length; i++){
             Vertex v = g.vertices[i];
             for (int iterator = 0; iterator < v.getNeighbors().length; iterator++) {
-                int neighbor = v.getNeighbor(iterator);
-                int[] data = {-translateTable[i]-1, -translateTable[neighbor]-1,v.getEdgeID(iterator)};
-                if(data[0] != data[1]) {
-                    edges[nextWrite++] = data;
+                int edgeID = v.getEdgeID(iterator);
+                if(edgeDone[edgeID])  continue; // Check if the edgeID has been marked as added already
+                int h_i = -translateTable[i]-1;
+                int h_j = -translateTable[v.getNeighbor(iterator)]-1;
+                if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
+                if(h_i > h_j) { // First value in data must be lowest. To ensure that {1,3} and {3,1} refer to the same endPoints.
+                    pileOfEdges[nextWrite++] = h_j;
+                    pileOfEdges[nextWrite++] = h_i;
+                    pileOfEdges[nextWrite++] = edgeID;
+                } else {
+                    pileOfEdges[nextWrite++] = h_i;
+                    pileOfEdges[nextWrite++] = h_j;
+                    pileOfEdges[nextWrite++] = edgeID;
                 }
+                edgeDone[edgeID] = true;
             }
         }
-        return Sort.radixSort(edges,sortKeys,translateTable[translateTable.length-1],nextWrite);
+        return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
     }
 
 
