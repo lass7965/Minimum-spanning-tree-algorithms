@@ -39,7 +39,7 @@ public class Boruvka {
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
         ArrayList MST = new ArrayList();
-        Digraph g = new Digraph(orgEdges,weights,n);
+        Graph g = new Graph(orgEdges,weights,n);
         while(g.edgesCount > 0){
             int[] MarkedEdges = findCheapest(g,MST);
             int[] translateTable = UnionFind.getCC(MarkedEdges,g.vertices.length);
@@ -53,53 +53,64 @@ public class Boruvka {
     }
 
 
-    public static int[] findCheapest(Digraph g, ArrayList MST){
-        HashMap<Integer, Boolean> marked = new HashMap();
-        ArrayList MarkedEdges = new ArrayList();
-        for (int i = 0; i < g.vertices.length; i++) {
-            Vertex currentVertex = g.vertices[i];
-            if(currentVertex == null){
-                g.vertices[i] = new Vertex(0); //Graph created a singleton while contracting
+    public static int[] findCheapest(Graph g, ArrayList MST) {
+        // A list containing two values per vertex which shows the cheapest edge candidates for a vertex.
+        // These values are initially the ID of the edge that connects to this vertex along with the other endpoint of this edge.
+        int[] candidateList = new int[g.vertices.length * 2];
+        for (int vertexID = 0; vertexID < g.vertices.length; vertexID++) {
+            Vertex currVertex = g.vertices[vertexID];
+            if(currVertex == null){
+                g.vertices[vertexID] = new Vertex(0); //Graph created a singleton while contracting
                 continue;
             }
-            if(currentVertex.getNeighbors().length == 0) continue; //Graph contained a singleton when given
-            int cheapestNeighbor = currentVertex.getNeighbor(0);
-            int cheapestEdgeID = currentVertex.getEdgeID(0);
-            float cheapestEdgeCost = Digraph.edgeCost[currentVertex.getEdgeID(0)];
-            for (int j = 1; j < currentVertex.getNeighbors().length ; j++) {
-                int currEdgeID = currentVertex.getEdgeID(j);
-                float currEdgeCost = Digraph.edgeCost[currEdgeID];
-                if(cheapestEdgeCost > currEdgeCost){
-                    cheapestNeighbor = currentVertex.getNeighbor(j);
-                    cheapestEdgeID = currEdgeID;
-                    cheapestEdgeCost = currEdgeCost;
+            int[] Neighbors = currVertex.getNeighbors();
+            for (int i = 0; i < Neighbors.length; i++) {
+                int target = Neighbors[i]; //The target of the edge stored at Neighbors[i]
+                int edgeID = currVertex.getEdgeID(i); //The ID of the edge stored at Neighbors[i]
+                // Check if the edge is cheaper than the currently cheapest edge in the candidate list for the SOURCE of the edge
+                if (isCheaper(candidateList, vertexID, edgeID)) {
+                    candidateList[vertexID * 2] = edgeID + 1;
+                    candidateList[vertexID * 2 + 1] = target;
+                }
+                // Check if the edge is cheaper than the currently cheapest edge in the candidate list for the TARGET of the edge
+                if (isCheaper(candidateList, target, edgeID)) {
+                    candidateList[target * 2] = edgeID + 1;
+                    candidateList[target * 2 + 1] = vertexID;
                 }
             }
-            if(! marked.containsKey(cheapestEdgeID)){
-                marked.put(cheapestEdgeID,true);
-                MST.add(cheapestEdgeID);
-                MarkedEdges.add(i);
-                MarkedEdges.add(cheapestNeighbor);
-            }
         }
-        return MarkedEdges.getArray();
+        HashMap<Integer, Boolean> marked = new HashMap();
+        for (int i = 0; i < candidateList.length; i += 2) {
+            int edgeID = candidateList[i] - 1;
+            if (edgeID == -1) continue;
+            if(! marked.containsKey(edgeID)) {
+                MST.add(edgeID);
+                marked.put(edgeID,true);
+            }
+            candidateList[i] = i / 2;//Replace the edgeID for every vertex, with the ID of every vertex. This creates a array of edges for DFS to run on.
+        }
+        return candidateList;
+    }
+
+    public static boolean isCheaper(int[] candidateList, int target, int edgeID){
+        if(candidateList[target*2] == 0) return true; //Check if it's initialized.
+        float edgeCost = Graph.edgeCost[edgeID];
+        return edgeCost < Graph.edgeCost[candidateList[target * 2]-1];
     }
 
 
 
-    public static Digraph contract(Digraph g,int[] translateTable){
+    public static Graph contract(Graph g,int[] translateTable){
         int[] pileOfEdges = new int[g.edgesCount*6]; //{i,j,org.ID}
         int nextWrite = 0;
         int[] sortKeys = {1,0};
-        boolean[] edgeDone = new boolean[Digraph.edgeCost.length]; // Mapping the edgeID to a boolean to avoid adding the same edge twice.
         for(int i = 0; i < g.vertices.length; i++){
             Vertex v = g.vertices[i];
             for (int iterator = 0; iterator < v.getNeighbors().length; iterator++) {
                 int edgeID = v.getEdgeID(iterator);
-                if(edgeDone[edgeID])  continue; // Check if the edgeID has been marked as added already
                 int h_i = -translateTable[i]-1;
                 int h_j = -translateTable[v.getNeighbor(iterator)]-1;
-                if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
+                    if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
                 if(h_i > h_j) { // First value in data must be lowest. To ensure that {1,3} and {3,1} refer to the same endPoints.
                     pileOfEdges[nextWrite++] = h_j;
                     pileOfEdges[nextWrite++] = h_i;
@@ -109,7 +120,6 @@ public class Boruvka {
                     pileOfEdges[nextWrite++] = h_j;
                     pileOfEdges[nextWrite++] = edgeID;
                 }
-                edgeDone[edgeID] = true;
             }
         }
         return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);

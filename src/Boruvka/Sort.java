@@ -2,7 +2,7 @@ package Boruvka;
 
 public class Sort {
     //Preform counting sort per index defined in sortKeys. First index in sortKeys is the "highest priority" of the sorting.
-    public static Digraph radixSort(int[] pileOfEdges, int[] sortKeys,int maxID, int size){
+    public static Graph radixSort(int[] pileOfEdges, int[] sortKeys,int maxID, int size){
         for (int key: sortKeys) {
             pileOfEdges = countingSortReversed(pileOfEdges,key,maxID,size);
         }
@@ -31,9 +31,9 @@ public class Sort {
     }
 
     // Build a graph from the sortedData set given, here edges should be considered directed, even though they are undirect, but the set contains both {i,j} and {j,i}.
-    public static Digraph buildGraph(int[] pileOfEdges, int maxID){
+    public static Graph buildGraph(int[] pileOfEdges, int maxID){
         if(pileOfEdges.length == 0){
-            return new Digraph(0);
+            return new Graph(0);
         }
         int currentVertexID = pileOfEdges[0];
         int currentTarget = pileOfEdges[1];
@@ -42,7 +42,7 @@ public class Sort {
         for (int i = 3; i < pileOfEdges.length; i+=3) {
             if(currentVertexID == pileOfEdges[i]) { // pileOfEdges still points towards same vertex
                 if(currentTarget == pileOfEdges[i+1]){
-                    if(Digraph.edgeCost[currentEdgeID] > Digraph.edgeCost[pileOfEdges[i+2]]) currentEdgeID = pileOfEdges[i+2];
+                    if(Graph.edgeCost[currentEdgeID] > Graph.edgeCost[pileOfEdges[i+2]]) currentEdgeID = pileOfEdges[i+2];
                 } else {
                     edges.add(currentVertexID);
                     edges.add(currentTarget);
@@ -63,7 +63,7 @@ public class Sort {
         edges.add(currentTarget);
         edges.add(currentEdgeID);
 
-        return new Digraph(edges.getArray(),Digraph.edgeCost,maxID);// Build new graph from the ArrayList newEdges
+        return new Graph(edges.getArray(),Graph.edgeCost,maxID);// Build new graph from the ArrayList newEdges
     }
 }
 
