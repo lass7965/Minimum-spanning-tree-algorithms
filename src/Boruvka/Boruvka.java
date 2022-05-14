@@ -86,13 +86,15 @@ public class Boruvka {
     }
 
     public static Digraph contract(Digraph g,int[] translateTable){
-        int[] pileOfEdges = new int[g.edgesCount*6]; //{i,j,org.ID}
+        int[] pileOfEdges = new int[g.edgesCount*3]; //{i,j,org.ID}
         int nextWrite = 0;
         int[] sortKeys = {1,0};
+        boolean[] edgeDone = new boolean[g.edgeCost.length]; // Mapping the edgeID to a boolean to avoid adding the same edge twice.
         for(int i = 0; i < g.vertices.length; i++){
             Vertex v = g.vertices[i];
             for (int iterator = 0; iterator < v.getNeighbors().length; iterator++) {
                 int edgeID = v.getEdgeID(iterator);
+                if(edgeDone[edgeID])  continue; // Check if the edgeID has been marked as added already
                 int h_i = -translateTable[i]-1;
                 int h_j = -translateTable[v.getNeighbor(iterator)]-1;
                 if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
@@ -105,6 +107,7 @@ public class Boruvka {
                     pileOfEdges[nextWrite++] = h_j;
                     pileOfEdges[nextWrite++] = edgeID;
                 }
+                edgeDone[edgeID] = true;
             }
         }
         return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
