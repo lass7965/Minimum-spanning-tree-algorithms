@@ -76,6 +76,7 @@ public class UnionFind {
         int[] translateTable = new int[n+1];
         for (int i = 0; i < n; i++) {
             int parent = UF.findSet(i); //Make sure that all have path compression.
+            if(parent == i) continue; // Might be singleton
             if(! map.containsKey(parent)){
                 map.put(parent,forestCount);
                 translateTable[parent] = forestCount;
