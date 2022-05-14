@@ -45,11 +45,12 @@ public class Boruvka {
             int[] translateTable = UnionFind.getCC(MarkedEdges,g.vertices.length);
             g = contract(g,translateTable);
         }
+        int[] ret = getMST(orgEdges,weights,orgN,MST);
         /**                         End timer                          **/
         profilerMain.labels.add("Boruvka");
         profilerMain.profiling.add(System.nanoTime());
         /**                         End timer                          **/
-        return getMST(orgEdges,weights,orgN,MST);
+        return ret;
     }
 
 
@@ -110,7 +111,7 @@ public class Boruvka {
                 int edgeID = v.getEdgeID(iterator);
                 int h_i = -translateTable[i]-1;
                 int h_j = -translateTable[v.getNeighbor(iterator)]-1;
-                    if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
+                if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
                 if(h_i > h_j) { // First value in data must be lowest. To ensure that {1,3} and {3,1} refer to the same endPoints.
                     pileOfEdges[nextWrite++] = h_j;
                     pileOfEdges[nextWrite++] = h_i;
@@ -132,12 +133,9 @@ public class Boruvka {
         for (int i = 0; i < MST.size(); i++) {
             int edgeID = MST.get(i);
             float weight = weights[edgeID];
-            if(weight > 0){
-                mstEdges[nextWrite++] = edges[edgeID * 2];
-                mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
-                mstEdges[nextWrite++] = Float.floatToIntBits(weight);
-                weights[edgeID] = -weight;
-            }
+            mstEdges[nextWrite++] = edges[edgeID * 2];
+            mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
+            mstEdges[nextWrite++] = Float.floatToIntBits(weight);
         }
         if(nextWrite != (n-1)*3) mstEdges = Arrays.copyOf(mstEdges,nextWrite);
 
