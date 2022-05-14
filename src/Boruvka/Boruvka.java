@@ -85,23 +85,29 @@ public class Boruvka {
         return MarkedEdges.getArray();
     }
 
-
-
     public static Digraph contract(Digraph g,int[] translateTable){
-        int[][] edges = new int[g.edgesCount*2][3]; //{i,j,org.ID}
+        int[] pileOfEdges = new int[g.edgesCount*6]; //{i,j,org.ID}
         int nextWrite = 0;
         int[] sortKeys = {1,0};
         for(int i = 0; i < g.vertices.length; i++){
             Vertex v = g.vertices[i];
             for (int iterator = 0; iterator < v.getNeighbors().length; iterator++) {
-                int neighbor = v.getNeighbor(iterator);
-                int[] data = {-translateTable[i]-1, -translateTable[neighbor]-1,v.getEdgeID(iterator)};
-                if(data[0] != data[1]) {
-                    edges[nextWrite++] = data;
+                int edgeID = v.getEdgeID(iterator);
+                int h_i = -translateTable[i]-1;
+                int h_j = -translateTable[v.getNeighbor(iterator)]-1;
+                if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
+                if(h_i > h_j) { // First value in data must be lowest. To ensure that {1,3} and {3,1} refer to the same endPoints.
+                    pileOfEdges[nextWrite++] = h_j;
+                    pileOfEdges[nextWrite++] = h_i;
+                    pileOfEdges[nextWrite++] = edgeID;
+                } else {
+                    pileOfEdges[nextWrite++] = h_i;
+                    pileOfEdges[nextWrite++] = h_j;
+                    pileOfEdges[nextWrite++] = edgeID;
                 }
             }
         }
-        return Sort.radixSort(edges,sortKeys,translateTable[translateTable.length-1],nextWrite);
+        return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
     }
 
 
@@ -111,9 +117,9 @@ public class Boruvka {
         for (int i = 0; i < MST.size(); i++) {
             int edgeID = MST.get(i);
             float weight = weights[edgeID];
-                mstEdges[nextWrite++] = edges[edgeID * 2];
-                mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
-                mstEdges[nextWrite++] = Float.floatToIntBits(weight);
+            mstEdges[nextWrite++] = edges[edgeID * 2];
+            mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
+            mstEdges[nextWrite++] = Float.floatToIntBits(weight);
         }
         if(nextWrite != (n-1)*3) mstEdges = Arrays.copyOf(mstEdges,nextWrite);
         return mstEdges;
