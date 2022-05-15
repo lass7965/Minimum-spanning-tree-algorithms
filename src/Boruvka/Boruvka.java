@@ -80,14 +80,10 @@ public class Boruvka {
                 }
             }
         }
-        HashMap<Integer, Boolean> marked = new HashMap();
         for (int i = 0; i < candidateList.length; i += 2) {
             int edgeID = candidateList[i] - 1;
             if (edgeID == -1) continue;
-            if(! marked.containsKey(edgeID)) {
-                MST.add(edgeID);
-                marked.put(edgeID,true);
-            }
+            MST.add(edgeID);
             candidateList[i] = i / 2;//Replace the edgeID for every vertex, with the ID of every vertex. This creates a array of edges for DFS to run on.
         }
         return candidateList;
@@ -133,9 +129,12 @@ public class Boruvka {
         for (int i = 0; i < MST.size(); i++) {
             int edgeID = MST.get(i);
             float weight = weights[edgeID];
-            mstEdges[nextWrite++] = edges[edgeID * 2];
-            mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
-            mstEdges[nextWrite++] = Float.floatToIntBits(weight);
+            if(weight >= 0) {
+                mstEdges[nextWrite++] = edges[edgeID * 2];
+                mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
+                mstEdges[nextWrite++] = Float.floatToIntBits(weight);
+                weights[edgeID] = -weight;
+            }
         }
         if(nextWrite != (n-1)*3) mstEdges = Arrays.copyOf(mstEdges,nextWrite);
 
