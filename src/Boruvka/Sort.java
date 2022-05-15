@@ -2,11 +2,11 @@ package Boruvka;
 
 public class Sort {
     //Preform counting sort per index defined in sortKeys. First index in sortKeys is the "highest priority" of the sorting.
-    public static Graph radixSort(int[] pileOfEdges, int[] sortKeys,int maxID, int size){
+    public static int[] radixSort(int[] pileOfEdges, float[] weights, int[] sortKeys,int maxID, int size){
         for (int key: sortKeys) {
             pileOfEdges = countingSortReversed(pileOfEdges,key,maxID,size);
         }
-        return buildGraph(pileOfEdges, maxID);
+        return removeDuplicates(pileOfEdges,weights, maxID);
     }
 
     // CountingSort but reversed in the last for loop. Normally it's from size to 1. Psuedocode in Cormen Introduction to algorithms page 195
@@ -30,50 +30,33 @@ public class Sort {
         return result;
     }
 
-    // Build a graph from the sortedData set given, here edges should be considered directed, even though they are undirect, but the set contains both {i,j} and {j,i}.
-    public static Graph buildGraph(int[] pileOfEdges, int maxID){
-        if(pileOfEdges.length == 0){
-            return new Graph(0);
-        }
-        Graph g = new Graph(maxID);
-        int currentVertexID = pileOfEdges[0];
-        int currentTarget = pileOfEdges[1];
-        int currentEdgeID = pileOfEdges[2];
-        ArrayList edgesForVertex = new ArrayList(); // ArrayList for the current vertex in form {target, edgeID}
+
+    public static int[] removeDuplicates(int[] pileOfEdges, float[] weights, int n){
+        ArrayList edges = new ArrayList();
+        int endpoint1 = pileOfEdges[0];
+        int endpoint2 = pileOfEdges[1];
+        int edgeID = pileOfEdges[2];
         for (int i = 3; i < pileOfEdges.length; i+=3) {
-            if(currentVertexID == pileOfEdges[i]) { // pileOfEdges still points towards same vertex
-                if(currentTarget == pileOfEdges[i+1]){
-                    if(Graph.edgeCost[currentEdgeID] > Graph.edgeCost[pileOfEdges[i+2]]) currentEdgeID = pileOfEdges[i+2];
-                } else {
-                    edgesForVertex.add(currentTarget);
-                    edgesForVertex.add(currentEdgeID);
-                    currentTarget = pileOfEdges[i+1];
-                    currentEdgeID = pileOfEdges[i+2];
-                }
+            if(endpoint1 != pileOfEdges[i] || endpoint2 != pileOfEdges[i+1]){
+                edges.add(endpoint1);
+                edges.add(endpoint2);
+                edges.add(edgeID);
+                endpoint1 = pileOfEdges[i];
+                endpoint2 = pileOfEdges[i+1];
+                edgeID = pileOfEdges[i+2];
             } else {
-                edgesForVertex.add(currentTarget);
-                edgesForVertex.add(currentEdgeID);
-                Vertex v = new Vertex(edgesForVertex.size()/2);
-                for (int j = 0;j < edgesForVertex.size; j+=2) {
-                    v.addEdge(edgesForVertex.get(j),edgesForVertex.get(j+1));
-                    g.edgesCount++;
+                if(weights[pileOfEdges[i+2]] < weights[edgeID]) {
+                    edgeID = pileOfEdges[i+2];
                 }
-                g.vertices[currentVertexID] = v;
-                edgesForVertex.clear();
-                currentVertexID = pileOfEdges[i];
-                currentTarget = pileOfEdges[i+1];
-                currentEdgeID = pileOfEdges[i+2];
             }
         }
-        edgesForVertex.add(currentTarget);
-        edgesForVertex.add(currentEdgeID);
-        Vertex v = new Vertex(edgesForVertex.size()/2);
-        for (int j = 0;j < edgesForVertex.size; j+=2) {
-            v.addEdge(edgesForVertex.get(j),edgesForVertex.get(j+1));
-            g.edgesCount++;
-        }
-        g.vertices[currentVertexID] = v;
-        return g;
+        edges.add(endpoint1);
+        edges.add(endpoint2);
+        edges.add(edgeID);
+        edges.add(n);
+        //Profiler.profilerMain.labels.add("06 Contract - Remove duplicates");
+        //Profiler.profilerMain.profiling.add(System.nanoTime());
+        return edges.getArray();
     }
 }
 

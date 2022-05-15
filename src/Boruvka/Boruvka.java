@@ -39,11 +39,12 @@ public class Boruvka {
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
         ArrayList MST = new ArrayList();
-        Graph g = new Graph(orgEdges,weights,n);
-        while(g.edgesCount > 0){
-            int[] MarkedEdges = findCheapest(g,MST);
-            int[] translateTable = UnionFind.getCC(MarkedEdges,g.vertices.length);
-            g = contract(g,translateTable);
+        int[] edges = Arrays.copyOf(orgEdges,orgEdges.length);
+        while(edges.length > 1){
+            int[] markedEdges = findCheapest(edges,weights,MST,n);
+            int[] translateTable = UnionFind.getCC(markedEdges,n);
+            edges = contract(edges,weights,translateTable);
+            n = edges[edges.length-1];
         }
         int[] ret = getMST(orgEdges,weights,orgN,MST);
         /**                         End timer                          **/
@@ -54,72 +55,56 @@ public class Boruvka {
     }
 
 
-    public static int[] findCheapest(Graph g, ArrayList MST) {
-        // A list containing two values per vertex which shows the cheapest edge candidates for a vertex.
-        // These values are initially the ID of the edge that connects to this vertex along with the other endpoint of this edge.
-        int[] candidateList = new int[g.vertices.length * 2];
-        for (int vertexID = 0; vertexID < g.vertices.length; vertexID++) {
-            Vertex currVertex = g.vertices[vertexID];
-            if(currVertex == null){
-                g.vertices[vertexID] = new Vertex(0); //Graph created a singleton while contracting
-                continue;
+    public static int[] findCheapest(int[] edges, float[] weights, ArrayList MST, int n){
+        int[] candidateList = new int[n*2]; //[edgeID, endpoint2]
+        for (int i = 0; i < edges.length-1; i+=3) {
+            int edgeID = edges[i+2];
+            int endpoint1 = edges[i];
+            int endpoint2 = edges[i+1];
+            if (isCheaper(candidateList,weights,endpoint1,edgeID)){
+                candidateList[endpoint1*2] = edgeID+1;
+                candidateList[endpoint1*2+1] = endpoint2;
             }
-            int[] Neighbors = currVertex.getNeighbors();
-            for (int i = 0; i < Neighbors.length; i++) {
-                int target = Neighbors[i]; //The target of the edge stored at Neighbors[i]
-                int edgeID = currVertex.getEdgeID(i); //The ID of the edge stored at Neighbors[i]
-                // Check if the edge is cheaper than the currently cheapest edge in the candidate list for the SOURCE of the edge
-                if (isCheaper(candidateList, vertexID, edgeID)) {
-                    candidateList[vertexID * 2] = edgeID + 1;
-                    candidateList[vertexID * 2 + 1] = target;
-                }
-                // Check if the edge is cheaper than the currently cheapest edge in the candidate list for the TARGET of the edge
-                if (isCheaper(candidateList, target, edgeID)) {
-                    candidateList[target * 2] = edgeID + 1;
-                    candidateList[target * 2 + 1] = vertexID;
-                }
+            if (isCheaper(candidateList,weights,endpoint2,edgeID)){
+                candidateList[endpoint2*2] = edgeID+1;
+                candidateList[endpoint2*2+1] = endpoint1;
             }
         }
-        for (int i = 0; i < candidateList.length; i += 2) {
+        for (int i = 0; i < candidateList.length; i+=2) {
             int edgeID = candidateList[i] - 1;
             if (edgeID == -1) continue;
             MST.add(edgeID);
-            candidateList[i] = i / 2;//Replace the edgeID for every vertex, with the ID of every vertex. This creates a array of edges for DFS to run on.
+            candidateList[i] = i / 2;
         }
         return candidateList;
     }
 
-    public static boolean isCheaper(int[] candidateList, int target, int edgeID){
-        if(candidateList[target*2] == 0) return true; //Check if it's initialized.
-        float edgeCost = Graph.edgeCost[edgeID];
-        return edgeCost < Graph.edgeCost[candidateList[target * 2]-1];
+    public static boolean isCheaper(int[] candidateList, float[] weights, int target, int edgeID){
+        int candidateEdgeID = candidateList[target*2];
+        if (candidateEdgeID == 0) return true; //Check if it's the first edge candidate.
+        return weights[candidateEdgeID-1] > weights[edgeID];
     }
 
 
 
-    public static Graph contract(Graph g,int[] translateTable){
-        int[] pileOfEdges = new int[g.edgesCount*3]; //{i,j,org.ID}
+    public static int[] contract(int[] edges, float[] weights, int[] translateTable){
         int nextWrite = 0;
         int[] sortKeys = {1,0};
-        for(int i = 0; i < g.vertices.length; i++){
-            Vertex v = g.vertices[i];
-            for (int iterator = 0; iterator < v.getNeighbors().length; iterator++) {
-                int edgeID = v.getEdgeID(iterator);
-                int h_i = -translateTable[i]-1;
-                int h_j = -translateTable[v.getNeighbor(iterator)]-1;
-                if(h_i == h_j) continue; // Check if they both got translated to the same vertex.
-                if(h_i > h_j) { // First value in data must be lowest. To ensure that {1,3} and {3,1} refer to the same endPoints.
-                    pileOfEdges[nextWrite++] = h_j;
-                    pileOfEdges[nextWrite++] = h_i;
-                    pileOfEdges[nextWrite++] = edgeID;
-                } else {
-                    pileOfEdges[nextWrite++] = h_i;
-                    pileOfEdges[nextWrite++] = h_j;
-                    pileOfEdges[nextWrite++] = edgeID;
-                }
+        for (int i = 0; i < edges.length-1; i+=3) {
+            int h_i = -translateTable[edges[i]]-1;
+            int h_j = -translateTable[edges[i+1]]-1;
+            if (h_i == h_j) continue;
+            if( h_i < h_j) {
+                edges[nextWrite++] = h_i;
+                edges[nextWrite++] = h_j;
+            } else {
+                edges[nextWrite++] = h_j;
+                edges[nextWrite++] = h_i;
             }
+            edges[nextWrite++] = edges[i+2];
         }
-        return Sort.radixSort(pileOfEdges,sortKeys,translateTable[translateTable.length-1],nextWrite);
+        if(nextWrite == 0) return new int[1];
+        return Sort.radixSort(edges, weights,sortKeys,translateTable[translateTable.length-1],nextWrite);
     }
 
 
