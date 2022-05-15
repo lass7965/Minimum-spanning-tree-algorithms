@@ -35,35 +35,45 @@ public class Sort {
         if(pileOfEdges.length == 0){
             return new Graph(0);
         }
+        Graph g = new Graph(maxID);
         int currentVertexID = pileOfEdges[0];
         int currentTarget = pileOfEdges[1];
         int currentEdgeID = pileOfEdges[2];
-        ArrayList edges = new ArrayList(); // ArrayList for the current vertex in form {target, edgeID}
+        ArrayList edgesForVertex = new ArrayList(); // ArrayList for the current vertex in form {target, edgeID}
         for (int i = 3; i < pileOfEdges.length; i+=3) {
             if(currentVertexID == pileOfEdges[i]) { // pileOfEdges still points towards same vertex
                 if(currentTarget == pileOfEdges[i+1]){
                     if(Graph.edgeCost[currentEdgeID] > Graph.edgeCost[pileOfEdges[i+2]]) currentEdgeID = pileOfEdges[i+2];
                 } else {
-                    edges.add(currentVertexID);
-                    edges.add(currentTarget);
-                    edges.add(currentEdgeID);
+                    edgesForVertex.add(currentTarget);
+                    edgesForVertex.add(currentEdgeID);
                     currentTarget = pileOfEdges[i+1];
                     currentEdgeID = pileOfEdges[i+2];
                 }
             } else {
-                edges.add(currentVertexID);
-                edges.add(currentTarget);
-                edges.add(currentEdgeID);
+                edgesForVertex.add(currentTarget);
+                edgesForVertex.add(currentEdgeID);
+                Vertex v = new Vertex(edgesForVertex.size()/2);
+                for (int j = 0;j < edgesForVertex.size; j+=2) {
+                    v.addEdge(edgesForVertex.get(j),edgesForVertex.get(j+1));
+                    g.edgesCount++;
+                }
+                g.vertices[currentVertexID] = v;
+                edgesForVertex.clear();
                 currentVertexID = pileOfEdges[i];
                 currentTarget = pileOfEdges[i+1];
                 currentEdgeID = pileOfEdges[i+2];
             }
         }
-        edges.add(currentVertexID);
-        edges.add(currentTarget);
-        edges.add(currentEdgeID);
-
-        return new Graph(edges.getArray(),Graph.edgeCost,maxID);// Build new graph from the ArrayList newEdges
+        edgesForVertex.add(currentTarget);
+        edgesForVertex.add(currentEdgeID);
+        Vertex v = new Vertex(edgesForVertex.size()/2);
+        for (int j = 0;j < edgesForVertex.size; j+=2) {
+            v.addEdge(edgesForVertex.get(j),edgesForVertex.get(j+1));
+            g.edgesCount++;
+        }
+        g.vertices[currentVertexID] = v;
+        return g;
     }
 }
 
