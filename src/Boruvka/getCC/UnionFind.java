@@ -46,7 +46,7 @@ public class UnionFind {
     }
 
     //v2
-    /*public static int[] getCC(int[] edges, int n){
+    public static int[] getCC(int[] edges, int n){
         UnionFind UF = new UnionFind(n);
         for (int i = 0; i < edges.length; i+=2) {
             int rootX = UF.findSet(edges[i]);
@@ -60,10 +60,10 @@ public class UnionFind {
         }
         UF.parent[n] = -UF.counter-1;
         return UF.parent;
-    }*/
+    }
 
     //v1
-   public static int[] getCC(int[] edges, int n){
+   /*public static int[] getCC(int[] edges, int n){
         UnionFind UF = new UnionFind(n);
         for (int i = 0; i < edges.length; i+=2) {
             int rootX = UF.findSet(edges[i]);
@@ -88,5 +88,5 @@ public class UnionFind {
         }
         translateTable[n] = -forestCount-1;
         return translateTable;
-    }
+    }*/
 }
