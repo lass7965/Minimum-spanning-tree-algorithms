@@ -63,7 +63,7 @@ public class Boruvka {
         for (int i = 0; i < n; i++) {
             candidateList[i*3+1] = Integer.MAX_VALUE;
         }
-        int nextWrite = 0;
+        int nextWrite = 0;/*
         int endpoint1 = edges[0];
         int endpoint2 = edges[1];
         int edgeID = edges[2];
@@ -86,7 +86,12 @@ public class Boruvka {
         }
         checkWeight(candidateList,edgeWeight,edgeID,endpoint1,endpoint2);
         checkWeight(candidateList,edgeWeight,edgeID,endpoint2,endpoint1);
-        edges[nextWrite++] = endpoint1; edges[nextWrite++] = endpoint2; edges[nextWrite++] = edgeID; edges[nextWrite++] = edgeWeight;
+        edges[nextWrite++] = endpoint1; edges[nextWrite++] = endpoint2; edges[nextWrite++] = edgeID; edges[nextWrite++] = edgeWeight;*/
+        for (int i = 0; i < edges.length-1; i+=4) {
+            checkWeight(candidateList,edges[i+3],edges[i+2],edges[i],edges[i+1]);
+            checkWeight(candidateList,edges[i+3],edges[i+2],edges[i+1],edges[i]);
+            edges[nextWrite++] = edges[i]; edges[nextWrite++] = edges[i+1]; edges[nextWrite++] = edges[i+2]; edges[nextWrite++] = edges[i+3];
+        }
         edges[edges.length-1] = nextWrite;
         return getMarked(MST,n,candidateList);
     }
