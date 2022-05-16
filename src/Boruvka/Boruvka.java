@@ -5,7 +5,6 @@ import Boruvka.getCC.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Boruvka {
@@ -38,12 +37,16 @@ public class Boruvka {
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
         ArrayList MST = new ArrayList();
-        int[] edges = Arrays.copyOf(orgEdges,orgEdges.length);
+        int[] edges = new int[m*4+1];
+        int[] markedEdges = firstFindCheapest(edges,orgEdges,MST,n);
         while(edges.length > 1){
-            int[] markedEdges = findCheapest(edges,MST,n);
             int[] translateTable = UnionFind.getCC(markedEdges,n);
             edges = contract(edges,translateTable);
             n = edges[edges.length-1];
+            if(n == 0) break;
+            markedEdges = findCheapest(edges,MST,n);
+            int edgeCount = edges[edges.length-1];
+            if(edgeCount < edges.length-1) edges = Arrays.copyOf(edges,edgeCount);
         }
         int[] ret = getMST(orgEdges,orgN,MST);
         /**                         End timer                          **/
@@ -54,19 +57,55 @@ public class Boruvka {
     }
 
 
+    //Assumes edges are sorted
     public static int[] findCheapest(int[] edges, ArrayList MST, int n){
-        int[] candidateList = new int[n*3]; //[edgeID, edgeWeight, endpoint2]
-        for (int i = 0; i < n; i+=1) {
+        int[] candidateList = new int[n*3]; //[edgeID, edgeWeight, target]
+        for (int i = 0; i < n; i++) {
             candidateList[i*3+1] = Integer.MAX_VALUE;
         }
-        for (int i = 0; i < edges.length-1; i+=4) {
-            int endpoint1 = edges[i];
-            int endpoint2 = edges[i+1];
-            int edgeID = edges[i+2];
-            int edgeWeight = edges[i+3];
+        int nextWrite = 0;
+        int endpoint1 = edges[0];
+        int endpoint2 = edges[1];
+        int edgeID = edges[2];
+        int edgeWeight = edges[3];
+        for (int i = 4; i < edges.length-1; i+=4) {
+            if(endpoint1 == edges[i] && endpoint2 == edges[i+1]){
+                if(edgeWeight > edges[i+3]){
+                    edgeWeight = edges[i+3];
+                    edgeID = edges[i+2];
+                }
+            } else {
+                checkWeight(candidateList,edgeWeight,edgeID,endpoint1,endpoint2);
+                checkWeight(candidateList,edgeWeight,edgeID,endpoint2,endpoint1);
+                edges[nextWrite++] = endpoint1; edges[nextWrite++] = endpoint2; edges[nextWrite++] = edgeID; edges[nextWrite++] = edgeWeight;
+                endpoint1 = edges[i];
+                endpoint2 = edges[i+1];
+                edgeID = edges[i+2];
+                edgeWeight = edges[i+3];
+            }
+        }
+        checkWeight(candidateList,edgeWeight,edgeID,endpoint1,endpoint2);
+        checkWeight(candidateList,edgeWeight,edgeID,endpoint2,endpoint1);
+        edges[nextWrite++] = endpoint1; edges[nextWrite++] = endpoint2; edges[nextWrite++] = edgeID; edges[nextWrite++] = edgeWeight;
+        edges[edges.length-1] = nextWrite;
+        return getMarked(MST,n,candidateList);
+    }
+
+    public static int[] firstFindCheapest(int[] edges, int[] orgEdges, ArrayList MST, int n){
+        int[] candidateList = new int[n*3]; //[edgeID, edgeWeight, target]
+        for (int i = 0; i < n; i++) {
+            candidateList[i*3+1] = Integer.MAX_VALUE;
+        }
+        int nextWrite = 0;
+        for (int i = 0; i < orgEdges.length; i+=4) {
+            int endpoint1 = edges[nextWrite++] = orgEdges[i];
+            int endpoint2 = edges[nextWrite++] = orgEdges[i+1];
+            int edgeID = edges[nextWrite++] = orgEdges[i+2];
+            int edgeWeight = edges[nextWrite++] = orgEdges[i+3];
             checkWeight(candidateList,edgeWeight,edgeID,endpoint1,endpoint2);
             checkWeight(candidateList,edgeWeight,edgeID,endpoint2,endpoint1);
         }
+        edges[nextWrite] = n;
         return getMarked(MST,n,candidateList);
     }
 

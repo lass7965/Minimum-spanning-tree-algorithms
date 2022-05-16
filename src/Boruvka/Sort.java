@@ -6,13 +6,13 @@ public class Sort {
         for (int key: sortKeys) {
             pileOfEdges = countingSortReversed(pileOfEdges,key,maxID,size);
         }
-        return removeDuplicates(pileOfEdges, maxID);
+        return pileOfEdges;
     }
 
     // CountingSort but reversed in the last for loop. Normally it's from size to 1. Psuedocode in Cormen Introduction to algorithms page 195
     public static int[] countingSortReversed(int[] pileOfEdges, int sortKey,int maxID,int size){
         int[] count = new int[maxID];
-        int[] result = new int[size];
+        int[] result = new int[size+1];
         for (int i = sortKey; i < size; i+=4) {
             int id = pileOfEdges[i];
             count[id]++;
@@ -28,6 +28,7 @@ public class Sort {
             result[newIndex++] = pileOfEdges[i+2];
             result[newIndex] = pileOfEdges[i+3];
         }
+        result[size] = maxID;
         return result;
     }
 
