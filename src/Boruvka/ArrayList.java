@@ -31,6 +31,14 @@ public class ArrayList {
         return data[index];
     }
 
+    public int remove(){
+        return data[--size];
+    }
+
+    public void set(int index,int value){
+        data[index] = value;
+    }
+
     public void clear(){
         this.size = 0;
     }

@@ -34,47 +34,68 @@ public class Prims {
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
 
-        ArrayList MST = new ArrayList();
+        int root = 0;
         Graph g = new Graph(edges,n);
-        minHeap PQ = new minHeap(n);
-        for (int root = 0; root < n; root++) {
-            PQ.markTakenOut(root);
-            int[] Neighbors = g.vertices[root];
+        minHeap PQ = new minHeap();
+        int[] weights = new int[n];
+        int[] parents = new int[n];
+        for (int u = 0; u < n; u++) {
+            PQ.insert(u,Integer.MAX_VALUE);
+        }
+        parents[root] = -1;
+        PQ.decreaseValue(root,0);
+        while(PQ.size != 0){
+            int[] v = PQ.popMin();
+            int VertexID =  v[0];
+            weights[VertexID] = v[1];
+            if(v[1] == Integer.MAX_VALUE){
+                parents[VertexID] = -1; //Mark it as root for MSF.
+            }
+            int[] Neighbors = g.vertices[VertexID];
             for (int i = 0; i < Neighbors.length;i+=2) {
                 int neighbor = Neighbors[i];
                 int weight = Neighbors[i+1];
-                if(PQ.contains(neighbor,weight,root)){
-                    PQ.decreaseValue(neighbor, weight,root);
-                }
-            }
-            while (PQ.size != 0) {
-                int[] v = PQ.popMin();
-                int VertexID = v[0];
-                int parent = v[2];
-                if (parent > VertexID) {
-                    MST.add(VertexID); // Add vertex
-                    MST.add(parent); // Add parent
-                } else {
-                    MST.add(parent); // Add parent
-                    MST.add(VertexID); // Add vertex
-                }
-                MST.add(v[1]); // Add weight
-                Neighbors = g.vertices[VertexID];
-                for (int i = 0; i < Neighbors.length; i += 2) {
-                    int neighbor = Neighbors[i];
-                    int weight = Neighbors[i + 1];
-                    if (PQ.contains(neighbor, weight, VertexID)) {
-                        PQ.decreaseValue(neighbor, weight, VertexID);
-                    }
+                if(PQ.contains(neighbor) && weight < PQ.getKey(neighbor)){
+                    parents[neighbor] = VertexID;
+                    PQ.decreaseValue(neighbor, weight);
                 }
             }
         }
-        int[] ret = MST.getArray();
+        int[] ret = normalizeOutput(parents,weights);
+
         /**                         End timer                            **/
         profilerMain.labels.add("Prims");
         profilerMain.profiling.add(System.nanoTime());
         /**                         End timer                            **/
+
         return ret;
+    }
+
+
+    public static int[] normalizeOutput(int[] parents, int[] weights){
+        int[] MST = new int[3*(parents.length-1)];
+        int nextWrite = 0;
+        for (int i = 0; i < parents.length; i++) {
+            if(parents[i] == -1) continue; //Is root for MST
+            int weight = weights[i];
+            if(weight>=0){
+                int target = parents[i];
+                if(parents[target] == i) {
+                    weights[target] = -weight;
+                }
+                weights[i] = -weight;
+                if( i < target) {
+                    MST[nextWrite++] = i;
+                    MST[nextWrite++] = target;
+                } else {
+                    MST[nextWrite++] = target;
+                    MST[nextWrite++] = i;
+                }
+                MST[nextWrite++] = weight;
+            }
+        }
+        if(nextWrite != (parents.length-1)*3) MST = Arrays.copyOf(MST,nextWrite);
+        return MST;
     }
 
     public static void main(String[] args) throws FileNotFoundException {
