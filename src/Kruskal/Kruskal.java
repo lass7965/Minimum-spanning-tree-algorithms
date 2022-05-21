@@ -119,7 +119,7 @@ public class Kruskal {
     static class comparator implements Comparator<Edge> {
         @Override
         public int compare(Edge Edge1,Edge Edge2) {
-            return Float.compare(Edge1.getCost(), Edge2.getCost());
+            return Integer.compare(Edge1.getCost(), Edge2.getCost());
         }
     }
 
