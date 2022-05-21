@@ -13,7 +13,6 @@ public class Boruvka {
         int orgN;
         int m;
         int[] orgEdges;
-        float[] weights;
 
         /**                         File reader                          **/
         Scanner fileReader = new Scanner(new File(FilePath));
@@ -136,7 +135,6 @@ public class Boruvka {
 
     public static int[] contract(int[] edges, int[] translateTable){
         int nextWrite = 0;
-        int[] sortKeys = {1,0};
         for (int i = 0; i < edges.length-1; i+=4) {
             int h_i = -translateTable[edges[i]]-1;
             int h_j = -translateTable[edges[i+1]]-1;
@@ -152,7 +150,8 @@ public class Boruvka {
             edges[nextWrite++] = edges[i+3];
         }
         if(nextWrite == 0) return new int[1];
-        return Sort.radixSort(edges,sortKeys,translateTable[translateTable.length-1],nextWrite);
+        edges[nextWrite++] = translateTable[translateTable.length-1];
+        return Arrays.copyOf(edges,nextWrite);
     }
 
 

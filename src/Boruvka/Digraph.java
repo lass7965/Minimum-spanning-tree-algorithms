@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class Digraph {
     Vertex[] vertices;
-    static float[] edgeCost; // Static field, only changed when a graph is initialized in the first recursion step.
+    float[] edgeCost; // Static field, only changed when a graph is initialized in the first recursion step.
     int edgesCount;
 
     // Normal constructor for the graph, this constructor is used to take in the users input in a input int array filled with 2 values per edge and a float array with their weights
