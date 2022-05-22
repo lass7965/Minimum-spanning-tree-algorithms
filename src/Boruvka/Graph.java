@@ -42,6 +42,22 @@ public class Graph {
         }
         return countMap;
     }
+    
+    public boolean isCheaper(int edgeID1, int edgeID2) {
+        return Graph.edgeCost[edgeID1] > Graph.edgeCost[edgeID2];
+    }
+
+
+    public void addVertex(int id, ArrayList edgesForVertex){
+        int size = edgesForVertex.size();
+        Vertex v = new Vertex(size/2);
+        for (int j = 0;j < size; j+=2) {
+            v.addEdge(edgesForVertex.get(j),edgesForVertex.get(j+1));
+            this.edgesCount++;
+        }
+        this.vertices[id] = v;
+        edgesForVertex.clear();
+    }
 
     public Graph(int size){
         this.vertices = new Vertex[size];
