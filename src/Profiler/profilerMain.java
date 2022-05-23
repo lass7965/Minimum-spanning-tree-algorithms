@@ -3,6 +3,7 @@ package Profiler;
 import Boruvka.Boruvka;
 import Kruskal.Kruskal;
 import Prims.Prims;
+import BrodahlPrim.BrodahlPrim;
 
 import java.io.File;
 import java.io.FileNotFoundException;

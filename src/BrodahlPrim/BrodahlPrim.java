@@ -1,4 +1,4 @@
-package Prims;
+package BrodahlPrim;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,7 +7,8 @@ import java.util.Scanner;
 
 import Boruvka.ArrayList;
 import Profiler.profilerMain;
-public class Prims {
+
+public class BrodahlPrim {
     public static int[] MST(String FilePath) throws FileNotFoundException {
         int n;
         int m;
@@ -34,53 +35,45 @@ public class Prims {
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
 
+        Graph graph = new Graph(edges,n);
         ArrayList MST = new ArrayList();
-        Graph g = new Graph(edges,n);
-        minHeap PQ = new minHeap(n);
+        minHeap PQ = new minHeap();
         for (int root = 0; root < n; root++) {
-            PQ.markTakenOut(root);
-            int[] Neighbors = g.vertices[root];
-            for (int i = 0; i < Neighbors.length;i+=2) {
-                int neighbor = Neighbors[i];
-                int weight = Neighbors[i+1];
-                if(PQ.contains(neighbor,weight,root)){
-                    PQ.decreaseValue(neighbor, weight,root);
-                }
+            if (graph.vertices[root] == null) continue;
+            for (int i = 0; i < graph.vertices[root].length; i += 2) {
+                int neighbor = graph.vertices[root][i];
+                int weight = graph.vertices[root][i + 1];
+                PQ.insert(root, neighbor, weight);
             }
-            while (PQ.size != 0) {
-                int[] v = PQ.popMin();
-                int VertexID = v[0];
-                int parent = v[2];
-                if (parent > VertexID) {
-                    MST.add(VertexID); // Add vertex
-                    MST.add(parent); // Add parent
-                } else {
-                    MST.add(parent); // Add parent
-                    MST.add(VertexID); // Add vertex
-                }
-                MST.add(v[1]); // Add weight
-                Neighbors = g.vertices[VertexID];
-                for (int i = 0; i < Neighbors.length; i += 2) {
-                    int neighbor = Neighbors[i];
-                    int weight = Neighbors[i + 1];
-                    if (PQ.contains(neighbor, weight, VertexID)) {
-                        PQ.decreaseValue(neighbor, weight, VertexID);
+            graph.vertices[root] = null;
+            int[] elem1 = null;
+            int[] elem2;
+            while (PQ.size > 0) {
+                elem1 = PQ.popMin();
+                elem2 = PQ.getMin();
+                if (elem2 != null && elem1[2] == elem2[2] && elem1[0] == elem2[1] && elem1[1] == elem2[0]) PQ.popMin();
+                else {
+                    MST.add(elem1);
+                    int u = elem1[0];
+                    int v = elem1[1];
+                    for (int i = 0; i < graph.vertices[v].length; i += 2) {
+                        int neighbor = graph.vertices[v][i];
+                        if (neighbor == u) continue;
+                        int weight = graph.vertices[v][i + 1];
+                        PQ.insert(v, neighbor, weight);
                     }
+                    graph.vertices[v] = null;
                 }
             }
+            PQ.clear();
         }
+
         int[] ret = MST.getArray();
         /**                         End timer                            **/
-        profilerMain.labels.add("Prims");
+        profilerMain.labels.add("Brodahl-Prim");
         profilerMain.profiling.add(System.nanoTime());
         /**                         End timer                            **/
+
         return ret;
     }
-
-    public static void main(String[] args) throws FileNotFoundException {
-        System.out.println(Arrays.toString(MST("./graph.txt")));
-    }
-
-
-
 }
