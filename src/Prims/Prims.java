@@ -38,32 +38,26 @@ public class Prims {
         Graph g = new Graph(edges,n);
         minHeap PQ = new minHeap(n);
         for (int root = 0; root < n; root++) {
+            if(PQ.isInMST(root)) continue;
             PQ.markTakenOut(root);
             int[] Neighbors = g.vertices[root];
             for (int i = 0; i < Neighbors.length;i+=2) {
                 int neighbor = Neighbors[i];
                 int weight = Neighbors[i+1];
-                if(PQ.contains(neighbor,weight,root)){
-                    PQ.decreaseValue(neighbor, weight,root);
-                }
+                PQ.insert(neighbor,weight,root);
             }
             while (PQ.size != 0) {
                 int[] v = PQ.popMin();
                 int VertexID = v[0];
                 int parent = v[2];
-                if (parent > VertexID) {
-                    MST.add(VertexID); // Add vertex
-                    MST.add(parent); // Add parent
-                } else {
-                    MST.add(parent); // Add parent
-                    MST.add(VertexID); // Add vertex
-                }
+                MST.add(VertexID); // Add vertex
+                MST.add(parent); // Add parent
                 MST.add(v[1]); // Add weight
                 Neighbors = g.vertices[VertexID];
                 for (int i = 0; i < Neighbors.length; i += 2) {
                     int neighbor = Neighbors[i];
                     int weight = Neighbors[i + 1];
-                    if (PQ.contains(neighbor, weight, VertexID)) {
+                    if (PQ.shouldDecrement(neighbor,weight,VertexID)) {
                         PQ.decreaseValue(neighbor, weight, VertexID);
                     }
                 }

@@ -162,8 +162,8 @@ public class Boruvka {
             int edgeID = MST.get(i);
             int weight = edges[edgeID*4+3];
             if(weight >= 0) {
-                mstEdges[nextWrite++] = edges[edgeID * 2];
-                mstEdges[nextWrite++] = edges[edgeID * 2 + 1];
+                mstEdges[nextWrite++] = edges[edgeID * 4];
+                mstEdges[nextWrite++] = edges[edgeID * 4 + 1];
                 mstEdges[nextWrite++] = weight;
                 edges[edgeID*4+3] = -weight;
             }
