@@ -1,4 +1,4 @@
-package BrodahlPrim;
+package ABTPrims;
 
 import Boruvka.ArrayList;
 

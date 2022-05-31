@@ -1,14 +1,13 @@
-package BrodahlPrim;
+package ABTPrims;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import Boruvka.ArrayList;
 import Profiler.profilerMain;
 
-public class BrodahlPrim {
+public class ABTPrims {
     public static int[] MST(String FilePath) throws FileNotFoundException {
         int n;
         int m;
@@ -46,7 +45,7 @@ public class BrodahlPrim {
                 PQ.insert(root, neighbor, weight);
             }
             graph.vertices[root] = null;
-            int[] elem1 = null;
+            int[] elem1;
             int[] elem2;
             while (PQ.size > 0) {
                 elem1 = PQ.popMin();
@@ -65,7 +64,6 @@ public class BrodahlPrim {
                     graph.vertices[v] = null;
                 }
             }
-            PQ.clear();
         }
 
         int[] ret = MST.getArray();

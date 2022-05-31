@@ -3,8 +3,8 @@ package Profiler;
 import Boruvka.Boruvka;
 import Kruskal.Kruskal;
 import Prims.Prims;
-import BrodahlPrim.BrodahlPrim;
-
+import ABTPrims.ABTPrims;
+import FT.FT;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -28,6 +28,12 @@ public class profilerMain {
         switch (args[1]) {
             case "Boruvka":
                 BoruvkaResult = Boruvka.MST(args[0]);
+                break;
+            case "ABT":
+                PrimsResult = ABTPrims.MST(args[0]);
+                break;
+            case "FT":
+                PrimsResult = FT.MST(args[0]);
                 break;
             case "Prims":
                 PrimsResult = Prims.MST(args[0]);

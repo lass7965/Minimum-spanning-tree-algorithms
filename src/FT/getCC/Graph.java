@@ -1,4 +1,4 @@
-package BrodahlPrim;
+package FT.getCC;
 
 public class Graph {
     public int[][] vertices;
@@ -8,37 +8,42 @@ public class Graph {
     // Input of form {i,j,x,y} where vertices i,j are connected and x,y are connected both with the connection weigh stored in another array.
     public Graph(int[] input, int n){
         int[] countMap = parseInput(input,n); // Get a count of neighbors for every vertex.
-        int edgesCount = 0;
         int[] nextWrite = new int[n];
         this.vertices = new int[n][];
         for (int i = 0; i < n; i++) {
-            this.vertices[i] = new int[countMap[i]*2];
+            this.vertices[i] = new int[countMap[i]]; // Target
         }
-        for (int i = 0; i < input.length; i+=3) {
+        for (int i = 0; i < input.length; i+=2) {
             int x = input[i];
             int y = input[i+1];
-            int weight = input[i+2];
             int index = nextWrite[x];
             this.vertices[x][index] = y;
-            this.vertices[x][index+1] = weight;
-            nextWrite[x]+=2;
+            nextWrite[x]++;
 
             index = nextWrite[y];
             this.vertices[y][index] = x;
-            this.vertices[y][index+1] = weight;
-            nextWrite[y]+=2;
+            nextWrite[y]++;
         }
-        this.edgesCount = input.length/3;
+        this.edgesCount = input.length;
+    }
+
+    public Graph(int size){
+        this.vertices = new int[size][];
+        edgesCount = 0;
     }
 
     // Count the number of neighbors that a vertex has, stored and returned in a hashmap to initialize vertices of appropriate sizes.
     // Input of form {i,j,x,y} where vertices i,j are connected and x,y are connected.
     public static int[] parseInput(int[] input, int n){
         int[] counter = new int[n];
-        for (int i = 0; i < input.length; i+=3) {
+        for (int i = 0; i < input.length; i+=2) {
             counter[input[i]]++;
             counter[input[i+1]]++;
         }
         return counter;
+    }
+
+    public int[] getNeighbors(int v) {
+        return this.vertices[v];
     }
 }
