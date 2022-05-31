@@ -50,9 +50,9 @@ public class FibonacciHeap extends Heap {
                 consolidate();
             }
             this.size--;
+            return new int[]{z.vertexID, z.edgeID, z.parentID};
         }
-        int[] ret = {z.vertexID,z.edgeID,z.parentID};
-        return ret;
+        return null;
     }
 
     public void markTakenOut(int id){
@@ -80,7 +80,6 @@ public class FibonacciHeap extends Heap {
         }
         this.min = null;
         for (Node currNode:A) {
-           //Node currNode = A.get(key);
             if(currNode != null){
                 if(this.min == null){
                     currNode.createRootList();
@@ -156,42 +155,5 @@ public class FibonacciHeap extends Heap {
         this.min = null;
         this.size = 0;
         modified.clear();
-    }
-
-    public boolean checkStructure(){
-        for (Node n:index) {
-            if(n==null || n.key == Integer.MAX_VALUE) continue;
-            if(n.left.right != n || n.right.left != n){
-                System.out.println("PQ ERROR");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static void main(String[] args) {
-        int size = 10;
-        FibonacciHeap heap = new FibonacciHeap(size);
-        int[] toInsert = new int[size];
-        for (int i = 0; i < size; i++) {
-            toInsert[i] = i;
-        }
-        Collections.shuffle(Collections.singletonList(toInsert));
-        for (int i:toInsert) {
-            heap.insert(i,i,i,i);
-            heap.checkStructure();
-        }
-        Collections.shuffle(Collections.singletonList(toInsert));
-        heap.popMin();
-        heap.checkStructure();
-        for (int i:toInsert) {
-            heap.decreaseIfContains(i,-i,i,i);
-            heap.checkStructure();
-        }
-        while(! heap.isEmpty()){
-            int[] n = heap.popMin();
-            heap.checkStructure();
-            System.out.println(n[0]);
-        }
     }
 }

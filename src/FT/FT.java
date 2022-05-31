@@ -55,19 +55,19 @@ public class FT {
         profilerMain.labels.add("Start time");
         profilerMain.profiling.add(System.nanoTime());
         /**                         Start timer                          **/
-        FT MST = new FT(edges.clone(), n, m);
-        while (MST.g.edgesCount > 1) {
-            MST.k = (int) Math.pow(2,2*( (double) m/MST.n));
-            for (int i = 0; i < MST.n; i++) {
-                if(MST.marked[i] == -1) continue;
-                MST.marked[i] = -1;
-                MST.grow(i);
+        FT alg = new FT(edges, n, m);
+        while (alg.g.edgesCount > 0) {
+            alg.k = (int) Math.pow(2,2*( (double) m/alg.n));
+            for (int i = 0; i < alg.n; i++) {
+                if(alg.marked[i] == -1) continue;
+                alg.marked[i] = -1;
+                alg.grow(i);
             }
-            MST.condense(MST.markedEdges.getArray());
+            alg.condense(alg.markedEdges.getArray());
         }
-        int[] ret = getMST(edges,n,MST.MST);
+        int[] ret = getMST(edges,n,alg.MST);
         /**                         End timer                            **/
-        profilerMain.labels.add("Fibonacci MST - FibHeap w/ Node[]");
+        profilerMain.labels.add("FT MST");
         profilerMain.profiling.add(System.nanoTime());
         /**                         End timer                            **/
         return ret;
@@ -75,15 +75,11 @@ public class FT {
 
     public void grow(int root) {
         int[] Neighbors = g.vertices[root];
-        if(Neighbors == null) {
-            g.vertices[root] = new int[0];
-            return;
-        }
         for (int i = 0; i < Neighbors.length; i += 3) {
             int neighbor = Neighbors[i];
             int edgeID = Neighbors[i + 1];
             int weight = Neighbors[i + 2];
-            PQ.decreaseIfContains(neighbor, weight, root,edgeID); // Decreases value if needed and inserts value if needed
+            PQ.insert(neighbor, weight, root,edgeID); // Decreases value if needed and inserts value if needed
         }
         PQ.markTakenOut(root);
         while (PQ.size < k && PQ.size > 0) {
@@ -136,15 +132,6 @@ public class FT {
             }
         }
         if(nextWrite != (n-1)*3) mstEdges = Arrays.copyOf(mstEdges,nextWrite);
-
         return mstEdges;
-    }
-
-    public static void main(String[] args) {
-        try {
-            MST("./Graph1.txt");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 }

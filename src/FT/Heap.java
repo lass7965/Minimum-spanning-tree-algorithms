@@ -9,5 +9,4 @@ public abstract class Heap {
     abstract void decreaseIfContains(int id, int weight,int parentID, int edgeID);
     abstract void decreaseKey(int id, int weight,int parentID, int edgeID);
     abstract void reset();
-    abstract boolean checkStructure();
 }

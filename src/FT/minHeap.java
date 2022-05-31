@@ -115,31 +115,11 @@ public class minHeap extends Heap {
         heap[swap2*2+1] = data[1];
     }
 
-    public boolean checkStructure(int i){
-        int lchild = i*2+1;
-        int rchild = i*2+2;
-        if(i > size) return true;
-        if(lchild < size && heap[i*2+1] > heap[lchild*2+1]) { // Parent bigger than left child
-            System.out.println(i*2+1 + " is bigger than " + (lchild*2+1));
-            return false;
-        } else if (rchild < size && heap[i*2+1] > heap[rchild*2+1]){
-            System.out.println(i*2+1 + " is bigger than " + (rchild*2+1));
-            return false;
-        } else {
-            return checkStructure(lchild) && checkStructure(rchild);
-        }
-    }
-
     public void reset(){
         for (int i = 0; i < modified.size(); i++) {
             this.index[modified.get(i)*4] = -2;
         }
         this.size = 0;
         modified.clear();
-    }
-
-    @Override
-    public boolean checkStructure() {
-        return false;
     }
 }

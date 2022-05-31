@@ -62,6 +62,7 @@ public class Contract {
         }
         Graph g = new Graph(maxID);
         int currentVertexID = pileOfEdges[0];
+        int linearVertex = 0;
         int currentTarget = pileOfEdges[1];
         int currentEdgeID = pileOfEdges[2];
         int currentWeight = pileOfEdges[3];
@@ -85,6 +86,7 @@ public class Contract {
                 edgesForVertex.add(currentTarget);
                 edgesForVertex.add(currentEdgeID);
                 edgesForVertex.add(currentWeight);
+                while(linearVertex != currentVertexID) g.vertices[linearVertex++] = new int[0];
                 int[] v = new int[edgesForVertex.size()];
                 for (int j = 0;j < edgesForVertex.size(); j+=3) {
                     v[j] = edgesForVertex.get(j);
@@ -95,6 +97,7 @@ public class Contract {
                 g.vertices[currentVertexID] = v;
                 edgesForVertex.clear();
                 currentVertexID = pileOfEdges[i];
+                linearVertex++;
                 currentTarget = pileOfEdges[i+1];
                 currentEdgeID = pileOfEdges[i+2];
                 currentWeight = pileOfEdges[i+3];
@@ -103,6 +106,7 @@ public class Contract {
         edgesForVertex.add(currentTarget);
         edgesForVertex.add(currentEdgeID);
         edgesForVertex.add(currentWeight);
+        while(linearVertex != maxID) g.vertices[linearVertex++] = new int[0];
         int[] v = new int[edgesForVertex.size()];
         for (int j = 0;j < edgesForVertex.size(); j+=3) {
             v[j] = edgesForVertex.get(j);
